@@ -112,6 +112,7 @@ int start_sta(){
   Serial.println(WiFi.SSID());              // Tell us what network we're connected to
   Serial.print("IP address:\t");
   Serial.println(WiFi.localIP());           // Send the IP address of the ESP8266 to the computer
+  return 0;
 }
 
 int start_ap(){
@@ -122,7 +123,7 @@ int start_ap(){
 
   Serial.print("IP address:\t");
   Serial.println(WiFi.softAPIP());  
-
+  return 0;
 }
 
 void setup() {
@@ -131,8 +132,6 @@ void setup() {
   Serial.begin(115200);         // Start the Serial communication to send messages to the computer
   delay(10);
   Serial.println('\n');
-
-  pinMode(configuration.trigger_pin, INPUT_PULLUP);
 
   SPIFFS.begin();                           // Start the SPI Flash Files System
 
@@ -144,6 +143,9 @@ void setup() {
   else{
     load_config();
   }
+
+  pinMode(configuration.trigger_pin, INPUT_PULLUP);
+  pinMode(configuration.led_pin, OUTPUT);
 
   //Start AP mode when wifi mode is AP or Trigger-Pin is pressed
   if(!strcmp(configuration.wifi_mode, "sta") && digitalRead(configuration.trigger_pin) ){
@@ -198,6 +200,8 @@ void setup() {
 
 void loop() {
   server.handleClient();
+
+
   
   if(digitalRead(configuration.trigger_pin) == 0){
     delay(200); //make sure not boucing
@@ -355,7 +359,6 @@ void handleFileList(){
     FSInfo fs_info;  SPIFFS.info(fs_info);    // Füllt FSInfo Struktur mit Informationen über das Dateisystem
     Dir dir = SPIFFS.openDir("/");            // Auflistung aller im Spiffs vorhandenen Dateien
     String page = FPSTR(HTTP_HEAD);
-    int i=0;
     page.replace("{v}", "List Images");
     page += FPSTR(HTTP_STYLE);
     page += FPSTR(HTTP_JS_IMAGE);
@@ -393,7 +396,7 @@ void handleConfig(){
     if(server.hasArg("line_time"))
       configuration.line_time = server.arg("line_time").toInt();  
     if(server.hasArg("trigger_pin"))
-      configuration.led_pin = server.arg("LED_pin").toInt();
+      configuration.trigger_pin = server.arg("trigger_pin").toInt();
     if(server.hasArg("image")){
       filename = server.arg("image");
       if(!filename.startsWith("/")) filename = "/"+filename;
@@ -582,17 +585,13 @@ void drawBMP(char *filename) {
   uint32_t rowSize;               // Not always = bmpWidth; may have padding
   //uint8_t  sdbuffer[3 * BUFF_SIZE];    // SD read pixel buffer (8 bits each R+G+B per pixel)
   uint8_t * sdbuffer = (uint8_t *)malloc(configuration.no_of_leds *3);
-  boolean  goodBmp = false;            // Flag set to true on valid header parse
-  int16_t  w, h, row, col,i;             // to store width, height, row and column
+  int16_t  w, h, i;             // to store width, height, row and column
   //uint8_t  r, g, b;   // brg encoding line concatenated for speed so not used
-  uint8_t rotation;     // to restore rotation
-  uint8_t  tft_ptr = 0;  // buffer pointer
-
   
 
   SPIFFS.begin();
   // Check file exists and open it
-  if ((bmpFile = SPIFFS.open(filename, "r")) == NULL) {
+  if ((bmpFile = SPIFFS.open(filename, "r")) == false) {
     Serial.println(F("File not found")); // Can comment out if not needed
     free(sdbuffer);
     return;
