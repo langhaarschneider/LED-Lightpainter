@@ -1,7 +1,7 @@
 
 # LED-Lightpainter
 
-A DIY Pixelstick clone for Light Painting using the ESP8266 and a WS2812 Strip (Neopixel)
+A DIY Pixelstick clone for Light Painting using the ESP8266 and a WS2812 Strip (Neopixel) based on <https://github.com/TheMasterFX/LED-Lightpainter>
 ![LED-Lightpainter](documentation/led_painter.jpg)
 
 ## Introduction
@@ -20,23 +20,20 @@ This project uses a cheap ESP8266 based Microcontroller board (like [NodeMCU](ht
 
 ## Wishlist
 
-- [ ] Predefined patterns (like Rainbow, color gradient etc.)
-- [ ] TFT/OLED Support
+- [ ] Trigger Via Webinterface
+- [ ] Configurable Trigger Delay Time - for Pin and WebTrigger
 - [ ] Accelerometer/Gyro support for automatic animation at movement
-- [ ] SDcard Support
 
 ## Compiling
 
 - Open the project in PlatformIO. Edit the platformio.ini to match your board.
-leave the setting "platform=espressif8266@1.5.0" because with the newer Arduino framework you might get issues with the webinterface (due to a bug in streamFile-Function).
-- Edit the configuration initialization according to your settings (Config configuration = ....) or leave it as it is.
 - Compile the Firmware and upload to your controller.
 - Put your images to the data-folder of the project (or leave it as it is) and select "Upload SPIFFS image" to make the SPIFFS Filesystem ready.
 
 ## Used Libraries
 
 - [Adafruit NeoPixel](https://github.com/adafruit/Adafruit_NeoPixel)
-- [ArduinoJson](https://github.com/bblanchon/ArduinoJson)
+- [ArduinoJson](https://github.com/bblanchon/ArduinoJson) Version < 6!
 - BMP drawing code is based on [Bodmer's TFT_HX8357 example](https://github.com/Bodmer/TFT_HX8357/tree/master/examples/Draw_SDCard_Bitmap)
 
 ## First start
